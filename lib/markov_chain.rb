@@ -91,39 +91,6 @@ module MarkovChain
       compute_probabilities
     end
 
-    def compute_probabilities_old(total_words)
-      n = @states.length
-
-      @word_probabilities =
-        Vector.elements(
-          @word_frequencies.map { |f| total_words.positive? ? f.to_f / total_words : 0.0 }
-        )
-
-      prob_rows = []
-
-      n.times do |i|
-        row = @transition_counts.row(i).to_a
-        row_sum = row.sum
-
-        prob_rows << if row_sum.zero?
-                       Array.new(n, 0.0)
-                     else
-                       row.map { |v| v.to_f / row_sum }
-                     end
-      end
-
-      @transition_probabilities = Matrix.rows(prob_rows)
-
-      combined_rows = []
-
-      n.times do |i|
-        row = @transition_probabilities.row(i).to_a
-        combined_rows << row.map { |p| p * @word_probabilities[i] }
-      end
-
-      @combined_probabilities = Matrix.rows(combined_rows)
-    end
-
     # --------------------------------------------------
     # Compute probabilities
     # --------------------------------------------------
@@ -212,8 +179,9 @@ module MarkovChain
     public
 
     def to_mermaid_flow(threshold: 0.0, decimals: 3)
-      lines = []
+      stop_state = mermaid_id(END_STATE)
 
+      lines = []
       lines << 'flowchart LR'
 
       n = @states.length
@@ -230,13 +198,8 @@ module MarkovChain
           prob = @transition_probabilities[i, j]
           next if prob <= threshold
 
-          # from_label = display_label_br(@states[i]) unless labels.include?(from_id)
-          # puts "#{i}, #{j} processing transition to state: #{@states[j]}, labels: #{labels.last(2)}, from_label: |#{from_label}|"
-          # labels << from_id
-
           to_id = mermaid_id(@states[j])
-          # to_label = display_label_br(@states[j]) unless labels.include?(to_id)
-          # labels << to_id
+          next if (from_id == to_id) && (from_id == stop_state)
 
           formatted = format("%.#{decimals}f", prob)
 
@@ -272,6 +235,7 @@ module MarkovChain
 
           from_id = mermaid_id(@states[i])
           to_id   = mermaid_id(@states[j])
+          next if (from_id == to_id) && (from_id == mermaid_id(END_STATE))
 
           percent = (prob * 100).round(1)
 

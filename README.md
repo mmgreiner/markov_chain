@@ -49,7 +49,8 @@ puts "\nMermaid flow with distributions"
 puts mk.to_mermaid_flow_with_node_probabilities(steps:)
 ```
 
-There is also a small command line program under `
+There is also a small command line program under `lib/main.rb`.
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. You can also run `bin/console` for an interactive prompt that will allow you to experiment.

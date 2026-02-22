@@ -157,11 +157,10 @@ module MarkovChain
 
       pi_vector = Vector.elements(pi)
 
-      p_power = @transition_probabilities.transpose ** steps
+      p_power = @transition_probabilities.transpose**steps
 
-      result = p_power * pi_vector
-      result
-    rescue => e
+      p_power * pi_vector
+    rescue StandardError => e
       tp = @transition_probabilities
       tpt = @transition_probabilities.transpose
       puts <<~ERR
@@ -176,7 +175,6 @@ module MarkovChain
     # --------------------------------------------------
     # Public: Mermaid export with START/END
     # --------------------------------------------------
-    public
 
     def to_mermaid_flow(threshold: 0.0, decimals: 3)
       stop_state = mermaid_id(END_STATE)
@@ -186,7 +184,7 @@ module MarkovChain
 
       n = @states.length
 
-      # node labels
+      #  node labels
       n.times do |i|
         lines << "    #{mermaid_id(@states[i])}[\"#{display_label(@states[i])}\"]"
       end
@@ -214,7 +212,7 @@ module MarkovChain
       dist = distribution_after(steps:)
 
       lines = []
-      lines << "flowchart LR"
+      lines << 'flowchart LR'
 
       n = @states.length
 
@@ -244,8 +242,7 @@ module MarkovChain
       end
 
       lines.join("\n")
-end
-
+    end
 
     private
 
